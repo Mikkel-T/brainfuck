@@ -1,7 +1,12 @@
+mod parser;
+pub mod tokenizer;
+
 use clap::{Parser, Subcommand};
+use parser::{parse, Instruction};
 use std::fs;
 use std::io::{stdout, Read, Write};
 use std::process;
+use tokenizer::tokenize;
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
@@ -24,39 +29,41 @@ fn main() {
 
     match &args.command {
         Commands::Run { file } => {
-            let program = fs::read_to_string(&file).unwrap_or_else(|err| {
+            let source = fs::read_to_string(&file).unwrap_or_else(|err| {
                 println!("couldn't read {}: {}", &file, err);
                 process::exit(1);
             });
+
+            let tokens = tokenize(source);
+            let instructions = parse(tokens);
+
             let mut tape: [u8; 30000] = [0; 30000];
             let mut ptr = 0;
-            run(&program, &mut tape, &mut ptr)
+            run(&instructions, &mut tape, &mut ptr)
         }
     }
 }
 
-fn run(program: &str, tape: &mut [u8; 30000], ptr: &mut usize) {
-    let mut code: Vec<_> = program.chars().rev().enumerate().collect();
-
-    while let Some((_, command)) = code.pop() {
-        match command {
-            '>' => {
+fn run(instructions: &Vec<Instruction>, tape: &mut [u8; 30000], ptr: &mut usize) {
+    for instruction in instructions {
+        match instruction {
+            Instruction::Right => {
                 *ptr = (*ptr + 1) % 30000;
             }
-            '<' => {
+            Instruction::Left => {
                 *ptr = (*ptr - 1) % 30000;
             }
-            '+' => {
+            Instruction::Increment => {
                 tape[*ptr] = tape[*ptr].wrapping_add(1);
             }
-            '-' => {
+            Instruction::Decrement => {
                 tape[*ptr] = tape[*ptr].wrapping_sub(1);
             }
-            '.' => {
+            Instruction::Write => {
                 print!("{}", tape[*ptr] as char);
                 stdout().flush().ok().expect("Could not flush stdout");
             }
-            ',' => {
+            Instruction::Read => {
                 let input: Option<u8> = std::io::stdin()
                     .bytes()
                     .next()
@@ -66,26 +73,11 @@ fn run(program: &str, tape: &mut [u8; 30000], ptr: &mut usize) {
                     None => (),
                 };
             }
-            '[' => {
-                let mut loop_stack = 1;
-                let mut loop_code = String::new();
-                while let Some((_, cmd)) = code.pop() {
-                    if cmd == '[' {
-                        loop_stack += 1;
-                    } else if cmd == ']' {
-                        loop_stack -= 1;
-                    }
-
-                    if cmd == ']' && loop_stack == 0 {
-                        break;
-                    }
-                    loop_code.push(cmd);
-                }
+            Instruction::Loop(program) => {
                 while tape[*ptr] != 0 {
-                    run(loop_code.as_str(), tape, ptr);
+                    run(program, tape, ptr);
                 }
             }
-            _ => (),
         }
     }
 }
