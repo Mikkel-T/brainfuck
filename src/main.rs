@@ -1,26 +1,38 @@
-use clap::Parser;
+use clap::{Parser, Subcommand};
 use std::fs;
 use std::io::{stdout, Read, Write};
 use std::process;
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
-struct Args {
-    /// The brainfuck program to run
-    file: String,
+struct Cli {
+    #[clap(subcommand)]
+    command: Commands,
+}
+
+#[derive(Subcommand, Debug)]
+enum Commands {
+    /// Runs a brainfuck program
+    Run {
+        /// The brainfuck program to run
+        file: String,
+    },
 }
 
 fn main() {
-    let args = Args::parse();
+    let args = Cli::parse();
 
-    let program = fs::read_to_string(&args.file).unwrap_or_else(|err| {
-        println!("couldn't read {}: {}", &args.file, err);
-        process::exit(1);
-    });
-
-    let mut tape: [u8; 30000] = [0; 30000];
-    let mut ptr = 0;
-    run(&program, &mut tape, &mut ptr)
+    match &args.command {
+        Commands::Run { file } => {
+            let program = fs::read_to_string(&file).unwrap_or_else(|err| {
+                println!("couldn't read {}: {}", &file, err);
+                process::exit(1);
+            });
+            let mut tape: [u8; 30000] = [0; 30000];
+            let mut ptr = 0;
+            run(&program, &mut tape, &mut ptr)
+        }
+    }
 }
 
 fn run(program: &str, tape: &mut [u8; 30000], ptr: &mut usize) {
