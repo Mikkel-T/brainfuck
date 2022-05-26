@@ -22,6 +22,11 @@ enum Commands {
         /// The brainfuck program to run
         file: String,
     },
+    /// Checks the syntax of a brainfuck file without running it
+    Check {
+        /// The brainfuck program to check
+        file: String,
+    },
 }
 
 fn main() {
@@ -40,6 +45,17 @@ fn main() {
             let mut tape: [u8; 30000] = [0; 30000];
             let mut ptr = 0;
             run(&instructions, &mut tape, &mut ptr)
+        }
+        Commands::Check { file } => {
+            let source = fs::read_to_string(&file).unwrap_or_else(|err| {
+                println!("couldn't read {}: {}", &file, err);
+                process::exit(1);
+            });
+
+            println!("Checking the file {}", &file);
+
+            parse(tokenize(source));
+            println!("No issues found with the file {}", &file);
         }
     }
 }
