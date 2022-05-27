@@ -5,8 +5,9 @@ use clap::{Parser, Subcommand};
 use parser::{parse, Instruction};
 use std::fs;
 use std::io::{stdout, Read, Write};
+use std::path::Path;
 use std::process;
-use tokenizer::tokenize;
+use tokenizer::{source_from_tokens, tokenize};
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
@@ -26,6 +27,14 @@ enum Commands {
     Check {
         /// The brainfuck program to check
         file: String,
+    },
+    /// Minifies a brainfuck program, removing all comments
+    Minify {
+        /// The brainfuck program to minify
+        file: String,
+        #[clap(short = 'o', long = "output", name = "FILE")]
+        /// The name of the output file
+        output: Option<String>,
     },
 }
 
@@ -56,6 +65,28 @@ fn main() {
 
             parse(tokenize(source));
             println!("No issues found with the file {}", &file);
+        }
+        Commands::Minify { file, output } => {
+            let output_file: String;
+            let source = fs::read_to_string(&file).unwrap_or_else(|err| {
+                println!("couldn't read {}: {}", &file, err);
+                process::exit(1);
+            });
+
+            let minified = source_from_tokens(tokenize(source));
+
+            match output {
+                Some(name) => output_file = name.to_string(),
+                None => {
+                    let path = Path::new(&file);
+                    let file_stem = path.file_stem().unwrap().to_str().unwrap();
+                    let extension = path.extension().unwrap().to_str().unwrap();
+
+                    output_file = format!("{file_stem}.min.{extension}")
+                }
+            }
+            fs::write(output_file, minified).expect("Error while writing to file {output_file}");
+            println!("Minified {file}");
         }
     }
 }

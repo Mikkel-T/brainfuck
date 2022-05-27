@@ -27,3 +27,20 @@ pub fn tokenize(source: String) -> Vec<Token> {
     }
     return tokens;
 }
+
+pub fn source_from_tokens(tokens: Vec<Token>) -> String {
+    let mut chars = Vec::new();
+    for token in tokens {
+        match token {
+            Token::Right => chars.push('>'),
+            Token::Left => chars.push('<'),
+            Token::Increment => chars.push('+'),
+            Token::Decrement => chars.push('-'),
+            Token::Write => chars.push('.'),
+            Token::Read => chars.push(','),
+            Token::LoopStart => chars.push('['),
+            Token::LoopEnd => chars.push(']'),
+        }
+    }
+    return chars.iter().collect();
+}
