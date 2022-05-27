@@ -18,9 +18,24 @@ pub enum Token {
     LoopEnd(Position),
 }
 
+impl Token {
+    pub fn to_char(&self) -> char {
+        match self {
+            Token::Right => '>',
+            Token::Left => '<',
+            Token::Increment => '+',
+            Token::Decrement => '-',
+            Token::Write => '.',
+            Token::Read => ',',
+            Token::LoopStart(_) => '[',
+            Token::LoopEnd(_) => ']',
+        }
+    }
+}
+
 impl fmt::Display for Position {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}:{}", self.line + 1, self.col + 1)
+        write!(f, "{}:{}", self.line, self.col)
     }
 }
 
@@ -35,8 +50,14 @@ pub fn tokenize(source: String) -> Vec<Token> {
                 '-' => tokens.push(Token::Decrement),
                 '.' => tokens.push(Token::Write),
                 ',' => tokens.push(Token::Read),
-                '[' => tokens.push(Token::LoopStart(Position { line: i, col: j })),
-                ']' => tokens.push(Token::LoopEnd(Position { line: i, col: j })),
+                '[' => tokens.push(Token::LoopStart(Position {
+                    line: i + 1,
+                    col: j + 1,
+                })),
+                ']' => tokens.push(Token::LoopEnd(Position {
+                    line: i + 1,
+                    col: j + 1,
+                })),
                 _ => (),
             }
         }
@@ -45,18 +66,5 @@ pub fn tokenize(source: String) -> Vec<Token> {
 }
 
 pub fn source_from_tokens(tokens: Vec<Token>) -> String {
-    let mut chars = Vec::new();
-    for token in tokens {
-        match token {
-            Token::Right => chars.push('>'),
-            Token::Left => chars.push('<'),
-            Token::Increment => chars.push('+'),
-            Token::Decrement => chars.push('-'),
-            Token::Write => chars.push('.'),
-            Token::Read => chars.push(','),
-            Token::LoopStart(_) => chars.push('['),
-            Token::LoopEnd(_) => chars.push(']'),
-        }
-    }
-    return chars.iter().collect();
+    return tokens.iter().map(|token| token.to_char()).collect();
 }

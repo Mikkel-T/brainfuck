@@ -54,7 +54,7 @@ fn main() {
 
             let mut tape: [u8; 30000] = [0; 30000];
             let mut ptr = 0;
-            run(&instructions, &mut tape, &mut ptr)
+            run(&instructions, &mut tape, &mut ptr);
         }
         Commands::Check { file } => {
             let source = fs::read_to_string(&file).unwrap_or_else(|err| {
@@ -83,7 +83,7 @@ fn main() {
                     let file_stem = path.file_stem().unwrap().to_str().unwrap();
                     let extension = path.extension().unwrap().to_str().unwrap();
 
-                    output_file = format!("{file_stem}.min.{extension}")
+                    output_file = format!("{file_stem}.min.{extension}");
                 }
             }
             fs::write(&output_file, minified.clone())

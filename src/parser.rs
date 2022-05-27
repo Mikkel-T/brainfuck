@@ -31,7 +31,7 @@ pub fn parse(tokens: Vec<Token>) -> Vec<Instruction> {
                     loop_start_pos = pos.clone();
                 }
                 Token::LoopEnd(pos) => {
-                    panic!("The loop ending at {pos} has no starting point")
+                    panic!("The loop ending at {pos} has no starting point");
                 }
             }
         } else {
