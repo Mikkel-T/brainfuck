@@ -1,3 +1,11 @@
+use std::fmt;
+
+#[derive(Clone)]
+pub struct Position {
+    pub line: usize,
+    pub col: usize,
+}
+
 #[derive(Clone)]
 pub enum Token {
     Right,
@@ -6,23 +14,31 @@ pub enum Token {
     Decrement,
     Write,
     Read,
-    LoopStart,
-    LoopEnd,
+    LoopStart(Position),
+    LoopEnd(Position),
+}
+
+impl fmt::Display for Position {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}:{}", self.line + 1, self.col + 1)
+    }
 }
 
 pub fn tokenize(source: String) -> Vec<Token> {
     let mut tokens = Vec::new();
-    for command in source.chars() {
-        match command {
-            '>' => tokens.push(Token::Right),
-            '<' => tokens.push(Token::Left),
-            '+' => tokens.push(Token::Increment),
-            '-' => tokens.push(Token::Decrement),
-            '.' => tokens.push(Token::Write),
-            ',' => tokens.push(Token::Read),
-            '[' => tokens.push(Token::LoopStart),
-            ']' => tokens.push(Token::LoopEnd),
-            _ => (),
+    for (i, line) in source.lines().enumerate() {
+        for (j, command) in line.chars().enumerate() {
+            match command {
+                '>' => tokens.push(Token::Right),
+                '<' => tokens.push(Token::Left),
+                '+' => tokens.push(Token::Increment),
+                '-' => tokens.push(Token::Decrement),
+                '.' => tokens.push(Token::Write),
+                ',' => tokens.push(Token::Read),
+                '[' => tokens.push(Token::LoopStart(Position { line: i, col: j })),
+                ']' => tokens.push(Token::LoopEnd(Position { line: i, col: j })),
+                _ => (),
+            }
         }
     }
     return tokens;
@@ -38,8 +54,8 @@ pub fn source_from_tokens(tokens: Vec<Token>) -> String {
             Token::Decrement => chars.push('-'),
             Token::Write => chars.push('.'),
             Token::Read => chars.push(','),
-            Token::LoopStart => chars.push('['),
-            Token::LoopEnd => chars.push(']'),
+            Token::LoopStart(_) => chars.push('['),
+            Token::LoopEnd(_) => chars.push(']'),
         }
     }
     return chars.iter().collect();
