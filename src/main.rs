@@ -2,7 +2,9 @@ mod parser;
 pub mod tokenizer;
 
 use clap::{Parser, Subcommand};
+use env_logger::Builder;
 use humansize::{file_size_opts::CONVENTIONAL, FileSize};
+use log::error;
 use parser::{parse, Instruction};
 use std::fs;
 use std::io::{stdout, Read, Write};
@@ -40,12 +42,25 @@ enum Commands {
 }
 
 fn main() {
+    let mut builder = Builder::new();
+
+    builder
+        .format(|buf, record| {
+            writeln!(
+                buf,
+                "{}: {}",
+                buf.default_styled_level(record.level()),
+                record.args()
+            )
+        })
+        .init();
+
     let args = Cli::parse();
 
     match &args.command {
         Commands::Run { file } => {
             let source = fs::read_to_string(&file).unwrap_or_else(|err| {
-                println!("couldn't read {file}: {err}");
+                error!("couldn't read {file}: {err}");
                 process::exit(1);
             });
 
@@ -58,19 +73,18 @@ fn main() {
         }
         Commands::Check { file } => {
             let source = fs::read_to_string(&file).unwrap_or_else(|err| {
-                println!("couldn't read {file}: {err}");
+                error!("couldn't read {file}: {err}");
                 process::exit(1);
             });
 
             println!("Checking the file {file}");
-
             parse(tokenize(source));
             println!("No issues found with the file {file}");
         }
         Commands::Minify { file, output } => {
             let output_file: String;
             let source = fs::read_to_string(&file).unwrap_or_else(|err| {
-                println!("couldn't read {file}: {err}");
+                error!("couldn't read {file}: {err}");
                 process::exit(1);
             });
 

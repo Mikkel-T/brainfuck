@@ -1,4 +1,6 @@
 use crate::tokenizer::{Position, Token};
+use log::error;
+use std::process;
 
 pub enum Instruction {
     Right,
@@ -31,7 +33,8 @@ pub fn parse(tokens: Vec<Token>) -> Vec<Instruction> {
                     loop_start_pos = pos.clone();
                 }
                 Token::LoopEnd(pos) => {
-                    panic!("The loop ending at {pos} has no starting point");
+                    error!("SyntaxError: The loop ending at {pos} has no starting point");
+                    process::exit(1);
                 }
             }
         } else {
@@ -51,7 +54,8 @@ pub fn parse(tokens: Vec<Token>) -> Vec<Instruction> {
     }
 
     if loop_stack != 0 {
-        panic!("The loop starting at {loop_start_pos} has no ending point");
+        error!("SyntaxError: The loop starting at {loop_start_pos} has no ending point");
+        process::exit(1);
     }
 
     return instructions;
