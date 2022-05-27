@@ -45,7 +45,7 @@ fn main() {
     match &args.command {
         Commands::Run { file } => {
             let source = fs::read_to_string(&file).unwrap_or_else(|err| {
-                println!("couldn't read {}: {}", &file, err);
+                println!("couldn't read {file}: {err}");
                 process::exit(1);
             });
 
@@ -58,19 +58,19 @@ fn main() {
         }
         Commands::Check { file } => {
             let source = fs::read_to_string(&file).unwrap_or_else(|err| {
-                println!("couldn't read {}: {}", &file, err);
+                println!("couldn't read {file}: {err}");
                 process::exit(1);
             });
 
-            println!("Checking the file {}", &file);
+            println!("Checking the file {file}");
 
             parse(tokenize(source));
-            println!("No issues found with the file {}", &file);
+            println!("No issues found with the file {file}");
         }
         Commands::Minify { file, output } => {
             let output_file: String;
             let source = fs::read_to_string(&file).unwrap_or_else(|err| {
-                println!("couldn't read {}: {}", &file, err);
+                println!("couldn't read {file}: {err}");
                 process::exit(1);
             });
 
