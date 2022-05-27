@@ -2,6 +2,7 @@ mod parser;
 pub mod tokenizer;
 
 use clap::{Parser, Subcommand};
+use humansize::{file_size_opts::CONVENTIONAL, FileSize};
 use parser::{parse, Instruction};
 use std::fs;
 use std::io::{stdout, Read, Write};
@@ -73,7 +74,7 @@ fn main() {
                 process::exit(1);
             });
 
-            let minified = source_from_tokens(tokenize(source));
+            let minified = source_from_tokens(tokenize(source.clone()));
 
             match output {
                 Some(name) => output_file = name.to_string(),
@@ -85,8 +86,17 @@ fn main() {
                     output_file = format!("{file_stem}.min.{extension}")
                 }
             }
-            fs::write(output_file, minified).expect("Error while writing to file {output_file}");
-            println!("Minified {file}");
+            fs::write(&output_file, minified.clone())
+                .expect("Error while writing to file {output_file}");
+            println!("Minified {file} -> {output_file}");
+            let source_len = source.len();
+            let minified_len = minified.len();
+            println!(
+                "{} -> {} ({}%)",
+                source_len.file_size(CONVENTIONAL).unwrap(),
+                minified_len.file_size(CONVENTIONAL).unwrap(),
+                ((minified_len as f32 - source_len as f32) / source_len as f32) * 100.
+            );
         }
     }
 }
