@@ -119,10 +119,20 @@ fn run(instructions: &Vec<Instruction>, tape: &mut [u8; 30000], ptr: &mut usize)
     for instruction in instructions {
         match instruction {
             Instruction::Right => {
-                *ptr = (*ptr + 1) % 30000;
+                if *ptr == 30000 {
+                    error!("Pointer out of bounds, pointer can not be bigger than 30000");
+                    process::exit(1);
+                }
+
+                *ptr += 1;
             }
             Instruction::Left => {
-                *ptr = (*ptr - 1) % 30000;
+                if *ptr == 0 {
+                    error!("Pointer out of bounds, pointer can not be less than 0");
+                    process::exit(1);
+                }
+
+                *ptr -= 1;
             }
             Instruction::Increment => {
                 tape[*ptr] = tape[*ptr].wrapping_add(1);
