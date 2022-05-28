@@ -120,7 +120,7 @@ fn run(instructions: &Vec<Instruction>, tape: &mut [u8; 30000], ptr: &mut usize)
         match instruction {
             Instruction::Right => {
                 if *ptr == 30000 {
-                    error!("Pointer out of bounds, pointer can not be bigger than 30000");
+                    error!("Pointer out of bounds: Pointer can not be bigger than 30000");
                     process::exit(1);
                 }
 
@@ -128,7 +128,7 @@ fn run(instructions: &Vec<Instruction>, tape: &mut [u8; 30000], ptr: &mut usize)
             }
             Instruction::Left => {
                 if *ptr == 0 {
-                    error!("Pointer out of bounds, pointer can not be less than 0");
+                    error!("Pointer out of bounds: Pointer can not be less than 0");
                     process::exit(1);
                 }
 
