@@ -48,7 +48,7 @@ fn main() {
         .format(|buf, record| {
             writeln!(
                 buf,
-                "{}: {}",
+                "[{}]: {}",
                 buf.default_styled_level(record.level()),
                 record.args()
             )
