@@ -1,12 +1,13 @@
+use log::debug;
 use std::fmt;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Position {
     pub line: usize,
     pub col: usize,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum Token {
     Right,
     Left,
@@ -33,6 +34,12 @@ impl Token {
     }
 }
 
+impl fmt::Display for Token {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.to_char())
+    }
+}
+
 impl fmt::Display for Position {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}:{}", self.line, self.col)
@@ -40,6 +47,7 @@ impl fmt::Display for Position {
 }
 
 pub fn tokenize(source: String) -> Vec<Token> {
+    debug!("Tokenizing source");
     let mut tokens = Vec::new();
     for (i, line) in source.lines().enumerate() {
         for (j, command) in line.chars().enumerate() {
@@ -62,6 +70,7 @@ pub fn tokenize(source: String) -> Vec<Token> {
             }
         }
     }
+    debug!("Done tokenizing");
     return tokens;
 }
 
