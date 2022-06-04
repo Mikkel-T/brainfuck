@@ -1,13 +1,14 @@
-mod parser;
+pub mod interpreter;
+pub mod parser;
 pub mod tokenizer;
 
 use clap::{Parser, Subcommand};
 use env_logger::Builder;
 use humansize::{file_size_opts::CONVENTIONAL, FileSize};
 use log::{debug, error, info, LevelFilter};
-use parser::{parse, Instruction};
+use parser::parse;
 use std::fs;
-use std::io::{stdout, Read, Write};
+use std::io::Write;
 use std::path::Path;
 use std::process;
 use tokenizer::{source_from_tokens, tokenize};
@@ -89,7 +90,7 @@ fn main() {
             let mut tape: [u8; 30000] = [0; 30000];
             let mut ptr = 0;
             debug!("Running the program");
-            run(&instructions, &mut tape, &mut ptr);
+            interpreter::run(&instructions, &mut tape, &mut ptr);
         }
         Commands::Check { file } => {
             debug!("Running command \"check\"");
@@ -138,6 +139,7 @@ fn main() {
     }
 }
 
+/// Read a file into a string
 fn read_file(file: String) -> String {
     debug!("Attempting to read file {file}");
     let source = fs::read_to_string(&file).unwrap_or_else(|err| {
@@ -146,52 +148,4 @@ fn read_file(file: String) -> String {
     });
     debug!("Read file {file}");
     source
-}
-
-fn run(instructions: &Vec<Instruction>, tape: &mut [u8; 30000], ptr: &mut usize) {
-    for instruction in instructions {
-        match instruction {
-            Instruction::Right => {
-                if *ptr == 30000 {
-                    error!("Pointer out of bounds: Pointer can not be bigger than 30000");
-                    process::exit(1);
-                }
-
-                *ptr += 1;
-            }
-            Instruction::Left => {
-                if *ptr == 0 {
-                    error!("Pointer out of bounds: Pointer can not be less than 0");
-                    process::exit(1);
-                }
-
-                *ptr -= 1;
-            }
-            Instruction::Increment => {
-                tape[*ptr] = tape[*ptr].wrapping_add(1);
-            }
-            Instruction::Decrement => {
-                tape[*ptr] = tape[*ptr].wrapping_sub(1);
-            }
-            Instruction::Write => {
-                print!("{}", tape[*ptr] as char);
-                stdout().flush().ok().expect("Could not flush stdout");
-            }
-            Instruction::Read => {
-                let input: Option<u8> = std::io::stdin()
-                    .bytes()
-                    .next()
-                    .and_then(|result| result.ok());
-                match input {
-                    Some(new) => tape[*ptr] = new,
-                    None => (),
-                };
-            }
-            Instruction::Loop(program) => {
-                while tape[*ptr] != 0 {
-                    run(program, tape, ptr);
-                }
-            }
-        }
-    }
 }

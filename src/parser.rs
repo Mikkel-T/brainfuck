@@ -2,16 +2,25 @@ use crate::tokenizer::{Position, Token};
 use log::error;
 use std::process;
 
+/// Brainfuck instructions that can be run by the interpreter
 pub enum Instruction {
+    /// Move pointer right
     Right,
+    /// Move pointer left
     Left,
+    /// Increment current cell
     Increment,
+    /// Decrement current cell
     Decrement,
+    /// Output value of current cell
     Write,
+    /// Replace value of current cell with input
     Read,
+    /// Loop over vec of instructions while current cell is not 0
     Loop(Vec<Instruction>),
 }
 
+/// Parses a vec of tokens to a vec of instructions
 pub fn parse(tokens: Vec<Token>) -> Vec<Instruction> {
     let mut instructions = Vec::new();
     let mut loop_stack = 0;

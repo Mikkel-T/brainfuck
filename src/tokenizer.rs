@@ -1,25 +1,38 @@
 use log::debug;
 use std::fmt;
 
+/// Position in the source file of a character
 #[derive(Clone, Debug)]
 pub struct Position {
+    /// The line of the character
     pub line: usize,
+    /// The column of the character
     pub col: usize,
 }
 
+/// Token that is generated from the source and can be parsed into an instruction by the parser
 #[derive(Clone, Debug)]
 pub enum Token {
+    /// Move pointer right
     Right,
+    /// Move pointer left
     Left,
+    /// Increment current cell
     Increment,
+    /// Decrement current cell
     Decrement,
+    /// Output value of current cell
     Write,
+    /// Replace value of current cell with input
     Read,
+    /// Start of loop
     LoopStart(Position),
+    /// End of loop
     LoopEnd(Position),
 }
 
 impl Token {
+    /// Convert a token to the corresponding source char
     pub fn to_char(&self) -> char {
         match self {
             Token::Right => '>',
@@ -46,6 +59,7 @@ impl fmt::Display for Position {
     }
 }
 
+/// Convert a string to a vec of tokens
 pub fn tokenize(source: String) -> Vec<Token> {
     debug!("Tokenizing source");
     let mut tokens = Vec::new();
@@ -74,6 +88,7 @@ pub fn tokenize(source: String) -> Vec<Token> {
     return tokens;
 }
 
+/// Convert a vec of tokens to a string
 pub fn source_from_tokens(tokens: Vec<Token>) -> String {
     return tokens.iter().map(|token| token.to_char()).collect();
 }
