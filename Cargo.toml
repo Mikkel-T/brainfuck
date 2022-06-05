@@ -1,7 +1,7 @@
 [package]
 name = "brainfuck"
 version = "0.1.0"
-description = "A brainfuck interpreter written in rust"
+description = "A brainfuck utility written in rust"
 edition = "2021"
 license = "MIT"
 authors = ["Mikkel-T <mikkel@mikkel-t.com>"]
