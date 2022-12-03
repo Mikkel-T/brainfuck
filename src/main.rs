@@ -4,7 +4,7 @@ pub mod tokenizer;
 
 use clap::{Parser, Subcommand};
 use env_logger::Builder;
-use humansize::{file_size_opts::CONVENTIONAL, FileSize};
+use humansize::{WINDOWS, format_size};
 use log::{debug, error, info, LevelFilter};
 use parser::parse;
 use std::fs;
@@ -131,8 +131,8 @@ fn main() {
             let minified_len = minified.len();
             println!(
                 "{} -> {} ({}%)",
-                source_len.file_size(CONVENTIONAL).unwrap(),
-                minified_len.file_size(CONVENTIONAL).unwrap(),
+                format_size(source_len, WINDOWS),
+                format_size(minified_len, WINDOWS),
                 ((minified_len as f32 - source_len as f32) / source_len as f32) * 100.
             );
         }
