@@ -67,5 +67,5 @@ pub fn parse(tokens: Vec<Token>) -> Vec<Instruction> {
         process::exit(1);
     }
 
-    return instructions;
+    instructions
 }

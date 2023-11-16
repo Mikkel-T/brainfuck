@@ -8,13 +8,14 @@ pub fn run(instructions: &Vec<Instruction>, tape: &mut [u8; 30000], ptr: &mut us
     for instruction in instructions {
         match instruction {
             Instruction::Right => {
-                if *ptr == 30000 {
-                    error!("Pointer out of bounds: Pointer can not be bigger than 30000");
+                if *ptr == 29999 {
+                    error!("Pointer out of bounds: Length of tape is 30000");
                     process::exit(1);
                 }
 
                 *ptr += 1;
             }
+
             Instruction::Left => {
                 if *ptr == 0 {
                     error!("Pointer out of bounds: Pointer can not be less than 0");
@@ -23,26 +24,30 @@ pub fn run(instructions: &Vec<Instruction>, tape: &mut [u8; 30000], ptr: &mut us
 
                 *ptr -= 1;
             }
+
             Instruction::Increment => {
                 tape[*ptr] = tape[*ptr].wrapping_add(1);
             }
+
             Instruction::Decrement => {
                 tape[*ptr] = tape[*ptr].wrapping_sub(1);
             }
+
             Instruction::Write => {
                 print!("{}", tape[*ptr] as char);
-                stdout().flush().ok().expect("Could not flush stdout");
+                stdout().flush().expect("Could not flush stdout");
             }
+
             Instruction::Read => {
                 let input: Option<u8> = std::io::stdin()
                     .bytes()
                     .next()
                     .and_then(|result| result.ok());
-                match input {
-                    Some(new) => tape[*ptr] = new,
-                    None => (),
+                if let Some(new) = input {
+                    tape[*ptr] = new
                 };
             }
+
             Instruction::Loop(program) => {
                 while tape[*ptr] != 0 {
                     run(program, tape, ptr);

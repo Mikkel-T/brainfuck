@@ -85,7 +85,7 @@ pub fn tokenize(source: String) -> Vec<Token> {
         }
     }
     debug!("Done tokenizing");
-    return tokens;
+    tokens
 }
 
 /// Convert a vec of tokens to a string
