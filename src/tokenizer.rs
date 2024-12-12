@@ -2,7 +2,7 @@ use log::debug;
 use std::fmt;
 
 /// Position in the source file of a character
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Position {
     /// The line of the character
     pub line: usize,
@@ -11,7 +11,7 @@ pub struct Position {
 }
 
 /// Token that is generated from the source and can be parsed into an instruction by the parser
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Token {
     /// Move pointer right
     Right,
@@ -91,4 +91,52 @@ pub fn tokenize(source: String) -> Vec<Token> {
 /// Convert a vec of tokens to a string
 pub fn source_from_tokens(tokens: Vec<Token>) -> String {
     tokens.iter().map(|token| token.to_char()).collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_tokenize() {
+        let source = String::from("+-.,[]");
+        let tokens = tokenize(source);
+        let expected = vec![
+            Token::Increment,
+            Token::Decrement,
+            Token::Write,
+            Token::Read,
+            Token::LoopStart(Position { line: 1, col: 5 }),
+            Token::LoopEnd(Position { line: 1, col: 6 }),
+        ];
+        assert_eq!(tokens, expected);
+    }
+
+    #[test]
+    fn test_remove_comments() {
+        let source = String::from("This + is - just . a , comment");
+        let tokens = tokenize(source);
+        let expected = vec![
+            Token::Increment,
+            Token::Decrement,
+            Token::Write,
+            Token::Read,
+        ];
+        assert_eq!(tokens, expected);
+    }
+
+    #[test]
+    fn test_source_from_tokens() {
+        let tokens = vec![
+            Token::Increment,
+            Token::Decrement,
+            Token::Write,
+            Token::Read,
+            Token::LoopStart(Position { line: 1, col: 5 }),
+            Token::LoopEnd(Position { line: 1, col: 6 }),
+        ];
+        let source = source_from_tokens(tokens);
+        let expected = String::from("+-.,[]");
+        assert_eq!(source, expected);
+    }
 }
