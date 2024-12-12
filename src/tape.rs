@@ -14,9 +14,10 @@ pub fn print_tape(tape: [u8; 30000], ptr: usize) {
     }
 
     let arrow_pos = 3 + (ptr - start) * 6;
-    println!("{}|", " ".repeat(arrow_pos));
-    println!("{}V", " ".repeat(arrow_pos));
-    println!("+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+");
+    println!("{}|", " ".repeat(arrow_pos + 6));
+    println!("{}V", " ".repeat(arrow_pos + 6));
+    println!("+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+");
+    print!("| IDX ");
     for i in start..end {
         print!("|");
         let num_len = i.to_string().len() as f32;
@@ -25,7 +26,8 @@ pub fn print_tape(tape: [u8; 30000], ptr: usize) {
         print!("{}{}{}", " ".repeat(before), i, " ".repeat(after));
     }
     println!("|");
-    println!("+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+");
+    println!("+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+");
+    print!("| VAL ");
     for num in tape.iter().take(end).skip(start) {
         print!("|");
         let num_len = num.to_string().len() as f32;
@@ -34,7 +36,7 @@ pub fn print_tape(tape: [u8; 30000], ptr: usize) {
         print!("{}{}{}", " ".repeat(before), num, " ".repeat(after));
     }
     println!("|");
-    println!("+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+");
-    println!("{}^", " ".repeat(arrow_pos));
-    println!("{}|", " ".repeat(arrow_pos));
+    println!("+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+");
+    println!("{}^", " ".repeat(arrow_pos + 6));
+    println!("{}|", " ".repeat(arrow_pos + 6));
 }

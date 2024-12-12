@@ -63,7 +63,13 @@ fn main() {
     builder
         .format(|buf, record| {
             let warn_style = buf.default_level_style(record.level());
-            writeln!(buf, "[{warn_style}{}{warn_style:#}] {}", record.level(), record.args())})
+            writeln!(
+                buf,
+                "[{warn_style}{}{warn_style:#}] {}",
+                record.level(),
+                record.args()
+            )
+        })
         .filter(
             Some("brainfuck"),
             if args.debug {
