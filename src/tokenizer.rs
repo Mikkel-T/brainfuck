@@ -90,5 +90,5 @@ pub fn tokenize(source: String) -> Vec<Token> {
 
 /// Convert a vec of tokens to a string
 pub fn source_from_tokens(tokens: Vec<Token>) -> String {
-    return tokens.iter().map(|token| token.to_char()).collect();
+    tokens.iter().map(|token| token.to_char()).collect()
 }
