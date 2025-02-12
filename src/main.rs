@@ -101,7 +101,7 @@ fn main() {
             print,
         } => {
             debug!("Running command \"minify\"");
-            commands::minify(file, output.clone(), print);
+            commands::minify(file, output.clone(), *print);
         }
 
         Commands::Repl {} => {

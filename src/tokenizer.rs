@@ -35,14 +35,14 @@ impl Token {
     /// Convert a token to the corresponding source char
     pub fn to_char(&self) -> char {
         match self {
-            Token::Right => '>',
-            Token::Left => '<',
-            Token::Increment => '+',
-            Token::Decrement => '-',
-            Token::Write => '.',
-            Token::Read => ',',
-            Token::LoopStart(_) => '[',
-            Token::LoopEnd(_) => ']',
+            Self::Right => '>',
+            Self::Left => '<',
+            Self::Increment => '+',
+            Self::Decrement => '-',
+            Self::Write => '.',
+            Self::Read => ',',
+            Self::LoopStart(_) => '[',
+            Self::LoopEnd(_) => ']',
         }
     }
 }
@@ -60,7 +60,7 @@ impl fmt::Display for Position {
 }
 
 /// Convert a string to a vec of tokens
-pub fn tokenize(source: String) -> Vec<Token> {
+pub fn tokenize(source: &str) -> Vec<Token> {
     debug!("Tokenizing source");
     let mut tokens = Vec::new();
     for (i, line) in source.lines().enumerate() {
@@ -89,8 +89,8 @@ pub fn tokenize(source: String) -> Vec<Token> {
 }
 
 /// Convert a vec of tokens to a string
-pub fn source_from_tokens(tokens: Vec<Token>) -> String {
-    tokens.iter().map(|token| token.to_char()).collect()
+pub fn source_from_tokens(tokens: &[Token]) -> String {
+    tokens.iter().map(Token::to_char).collect()
 }
 
 #[cfg(test)]
@@ -100,7 +100,7 @@ mod tests {
     #[test]
     fn test_tokenize() {
         let source = String::from("+-.,[]");
-        let tokens = tokenize(source);
+        let tokens = tokenize(&source);
         let expected = vec![
             Token::Increment,
             Token::Decrement,
@@ -115,7 +115,7 @@ mod tests {
     #[test]
     fn test_remove_comments() {
         let source = String::from("This + is - just . a , comment");
-        let tokens = tokenize(source);
+        let tokens = tokenize(&source);
         let expected = vec![
             Token::Increment,
             Token::Decrement,
@@ -135,7 +135,7 @@ mod tests {
             Token::LoopStart(Position { line: 1, col: 5 }),
             Token::LoopEnd(Position { line: 1, col: 6 }),
         ];
-        let source = source_from_tokens(tokens);
+        let source = source_from_tokens(&tokens);
         let expected = String::from("+-.,[]");
         assert_eq!(source, expected);
     }

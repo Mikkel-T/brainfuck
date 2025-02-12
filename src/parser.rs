@@ -21,7 +21,7 @@ pub enum Instruction {
 }
 
 /// Parses a vec of tokens to a vec of instructions
-pub fn parse(tokens: Vec<Token>) -> Vec<Instruction> {
+pub fn parse(tokens: &[Token]) -> Vec<Instruction> {
     let mut instructions = Vec::new();
     let mut loop_stack = 0;
     let mut loop_start = 0;
@@ -53,8 +53,7 @@ pub fn parse(tokens: Vec<Token>) -> Vec<Instruction> {
                     loop_stack -= 1;
 
                     if loop_stack == 0 {
-                        instructions
-                            .push(Instruction::Loop(parse(tokens[loop_start + 1..i].to_vec())));
+                        instructions.push(Instruction::Loop(parse(&tokens[loop_start + 1..i])));
                     }
                 }
                 _ => {}

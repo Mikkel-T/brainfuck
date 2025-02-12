@@ -6,10 +6,10 @@ pub fn check(file: &str) {
 
     println!("Checking the file {file}");
 
-    let tokens = tokenize(source);
+    let tokens = tokenize(&source);
 
     debug!("Parsing the tokens");
-    parse(tokens);
+    parse(&tokens);
     debug!("Done parsing");
 
     println!("No issues found with the file {file}");

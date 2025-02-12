@@ -10,47 +10,47 @@ enum ReplCommand {
     Code(String),
 }
 
-impl ReplCommand {
-    fn from_string(command: String) -> ReplCommand {
+impl From<String> for ReplCommand {
+    fn from(command: String) -> Self {
         let cmd = command.trim();
 
         if cmd == "exit" {
-            ReplCommand::Exit
+            Self::Exit
         } else if cmd == "tape" {
-            ReplCommand::Tape(None)
+            Self::Tape(None)
         } else if cmd.starts_with("tape") {
             let splits = cmd.split_whitespace().collect::<Vec<&str>>();
             if splits.len() != 2 {
                 error!("Invalid syntax: tape <index>");
-                return ReplCommand::Invalid;
+                return Self::Invalid;
             }
 
-            match splits[1].parse::<usize>() {
-                Ok(index) => {
+            splits[1].parse::<usize>().map_or_else(
+                |_| {
+                    error!("Invalid index: Index must be a number");
+                    Self::Invalid
+                },
+                |index| {
                     if index > 29999 {
                         error!("Index out of bounds: Length of tape is 30000");
-                        ReplCommand::Invalid
+                        Self::Invalid
                     } else {
-                        ReplCommand::Tape(Some(index))
+                        Self::Tape(Some(index))
                     }
-                }
-                Err(_) => {
-                    error!("Invalid index: Index must be a number");
-                    ReplCommand::Invalid
-                }
-            }
+                },
+            )
         } else if cmd.starts_with("run") {
             let splits = cmd.split_whitespace().collect::<Vec<&str>>();
             if splits.len() != 2 {
                 error!("Invalid syntax: run <file>");
-                return ReplCommand::Invalid;
+                return Self::Invalid;
             }
 
             let source = read_file(splits[1]);
 
-            ReplCommand::Code(source)
+            Self::Code(source)
         } else {
-            ReplCommand::Code(cmd.to_string())
+            Self::Code(cmd.to_string())
         }
     }
 }
@@ -75,26 +75,23 @@ pub fn repl() {
             println!();
         }
 
-        let readline = rl.readline(&format!("current index: {}> ", ptr));
+        let readline = rl.readline(&format!("current index: {ptr}> "));
         match readline {
             Ok(line) => {
                 rl.add_history_entry(line.as_str()).unwrap();
 
-                match ReplCommand::from_string(line) {
+                match ReplCommand::from(line) {
                     ReplCommand::Exit => {
                         println!("Exiting REPL");
                         break;
                     }
                     ReplCommand::Tape(index) => tape::print_tape(
                         tape,
-                        match index {
-                            Some(i) => i,
-                            None => ptr,
-                        },
+                        index.map_or(ptr, |i| i),
                     ),
                     ReplCommand::Code(code) => {
-                        let tokens = tokenize(code);
-                        let instructions = parse(tokens);
+                        let tokens = tokenize(&code);
+                        let instructions = parse(&tokens);
 
                         interpreter::run(&instructions, &mut tape, &mut ptr);
                     }
