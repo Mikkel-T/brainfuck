@@ -85,10 +85,7 @@ pub fn repl() {
                         println!("Exiting REPL");
                         break;
                     }
-                    ReplCommand::Tape(index) => tape::print_tape(
-                        tape,
-                        index.map_or(ptr, |i| i),
-                    ),
+                    ReplCommand::Tape(index) => tape::print_tape(tape, index.map_or(ptr, |i| i)),
                     ReplCommand::Code(code) => {
                         let tokens = tokenize(&code);
                         let instructions = parse(&tokens);
